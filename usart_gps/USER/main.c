@@ -10,7 +10,8 @@ u8 USART2_TMP[USART2_TMP_LEN];
  {	
 	u8 t;
 	u8 len;	
- 
+  u8 * p_follow;
+	 
 	delay_init();	    	 //延时函数初始化	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);// 设置中断优先级分组2
 	uart_init(115200);	 //串口1初始化为115200
@@ -32,19 +33,31 @@ u8 USART2_TMP[USART2_TMP_LEN];
 			USART_RX_STA=0;
 		}else{
 			
-      LED1=!LED1;//闪烁LED,提示系统正在运行.
+      
 			delay_ms(100);
-      receive(50);			
+      if(receive(50) > 0)
+				;			
+			else{
+				p_follow=(u8 *)&follow_data;
+        for(t=0;t<sizeof(follow_data);t++){
+					
+          while((USART1->SR&0X40)==0);//等待上次发送结束
+					USART1->DR=*(p_follow+t);
+				   
+        }
+				LED1=!LED1;//闪烁LED,提示GPS有效数据得到解析.
+				
+			}
 			
-			printf("lat:%8.10f\r\n",follow_data.lat);
-			printf("lon:%8.10f\r\n",follow_data.lon);
-			printf("alt:%8.10f\r\n",follow_data.alt);
-			printf("vy:%6.5f\r\n",follow_data.vy);
-			printf("vx:%6.5f\r\n",follow_data.vx);
-			printf("vz:%6.5f\r\n",follow_data.vz);
-			printf("numSV:%d\r\n",follow_data.numSV);
-			printf("mag_dec:%d\r\n",follow_data.mag_dec);
-			printf("数据总长：%d\r\n",sizeof(EXYF_FOLLOW));
+//			printf("lat:%8.10f\r\n",follow_data.lat);
+//			printf("lon:%8.10f\r\n",follow_data.lon);
+//			printf("alt:%8.10f\r\n",follow_data.alt);
+//			printf("vy:%6.5f\r\n",follow_data.vy);
+//			printf("vx:%6.5f\r\n",follow_data.vx);
+//			printf("vz:%6.5f\r\n",follow_data.vz);
+//			printf("numSV:%d\r\n",follow_data.numSV);
+//			printf("mag_dec:%d\r\n",follow_data.mag_dec);
+//			printf("数据总长：%d\r\n",sizeof(EXYF_FOLLOW));
 			
 		}
 	}	 

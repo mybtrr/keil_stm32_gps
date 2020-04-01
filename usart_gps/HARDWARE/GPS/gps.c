@@ -92,7 +92,15 @@ void gps_config(){
   }
 	
   _configured = 1;
-	
+	follow_data.head[0]    = '$';
+	follow_data.head[1]    = 'E';
+	follow_data.head[2]    = 'X';
+	follow_data.head[3]    = 'Y';
+	follow_data.head[4]    = 'F';
+	follow_data.buflen     = 48;
+	follow_data.command    = 20;
+	follow_data.command_re = 20;
+	follow_data.crc_check  = 0x3f00;
   LED0 = !LED0;  //提示gps配置完成	
 }
 
@@ -465,19 +473,20 @@ u8 payloadRxDone(){
 		//解析PVT数据
     case UBX_MSG_NAV_PVT:
 		
-        tmp = _buf.payload_rx_nav_pvt.lat;
-        follow_data.lat = (float)tmp*1e-7f;
-        tmp = _buf.payload_rx_nav_pvt.lon;
-        follow_data.lon = (float)tmp*1e-7f;
-        tmp = _buf.payload_rx_nav_pvt.hMSL;
-        follow_data.alt = tmp * 1e-3f;
-        follow_data.vy =  (float)_buf.payload_rx_nav_pvt.velE * 1e-3f;
-        follow_data.vx =  (float)_buf.payload_rx_nav_pvt.velN * 1e-3f;
-        follow_data.vz =  (float)_buf.payload_rx_nav_pvt.velD * 1e-3f;
-        follow_data.mag_dec = _buf.payload_rx_nav_pvt.magDec;
-        follow_data.flags = _buf.payload_rx_nav_pvt.flags;
-        follow_data.fixType = _buf.payload_rx_nav_pvt.fixType;
-        follow_data.numSV = _buf.payload_rx_nav_pvt.numSV;	
+        tmp                   = _buf.payload_rx_nav_pvt.lat;
+        follow_data.lat       = (float)tmp*1e-7f;
+        tmp                   = _buf.payload_rx_nav_pvt.lon;
+        follow_data.lon       = (float)tmp*1e-7f;
+        tmp                   = _buf.payload_rx_nav_pvt.hMSL;
+        follow_data.alt       = tmp * 1e-3f;
+        follow_data.vy        =  (float)_buf.payload_rx_nav_pvt.velE * 1e-3f;
+        follow_data.vx        =  (float)_buf.payload_rx_nav_pvt.velN * 1e-3f;
+        follow_data.vz        =  (float)_buf.payload_rx_nav_pvt.velD * 1e-3f;
+        follow_data.mag_dec   = _buf.payload_rx_nav_pvt.magDec;
+        follow_data.flags     = _buf.payload_rx_nav_pvt.flags;
+        follow_data.fixType   = _buf.payload_rx_nav_pvt.fixType;
+        follow_data.numSV     = _buf.payload_rx_nav_pvt.numSV;	
+		    
 	
         ret = 1;
         break;
